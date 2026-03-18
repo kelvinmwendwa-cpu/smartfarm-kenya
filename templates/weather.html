@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}Weather - SmartFarm Kenya{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h1 style="color: var(--dark-green);">
+            <i class="fas fa-cloud-sun"></i> Weather Information
+        </h1>
+        <p style="color: var(--dark-gray);">Current weather conditions for farming decisions across Kenya</p>
+    </div>
+
+    <!-- County Selection -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+            <i class="fas fa-map-marker-alt"></i> Select County
+        </div>
+        <div class="card-body">
+            <form method="POST" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}"/>
+                <div style="flex: 1; min-width: 250px;">
+                    <select name="county" class="form-control" onchange="this.form.submit()">
+                        {% for county_key, county_info in counties.items() %}
+                        <option value="{{ county_key }}" {% if selected_county == county_key %}selected{% endif %}>
+                            {{ county_info.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sync"></i> Update Weather
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Weather Display -->
+    <div class="weather-widget" style="margin-bottom: 2rem;">
+        <h2 style="margin-bottom: 1rem;">
+            <i class="fas fa-map-marker-alt"></i> {{ weather.get('city', 'Nairobi') }}, Kenya
+        </h2>
+        
+        {% if weather.error %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> {{ weather.error }}
+        </div>
+        {% else %}
+        <div style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; margin-bottom: 2rem;">
+            <div style="text-align: center;">
+                <i class="fas fa-{{ weather.get('icon', 'partly-cloudy') }}" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+                <div class="weather-temp">{{ weather.get('temperature', 28) }}°C</div>
+                <div class="weather-desc">{{ weather.get('description', 'Partly cloudy') }}</div>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; text-align: center;">
+            <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 10px;">
+                <i class="fas fa-tint" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                <div style="font-size: 1.5rem; font-weight: bold;">{{ weather.get('humidity', 65) }}%</div>
+                <div>Humidity</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 10px;">
+                <i class="fas fa-wind" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                <div style="font-size: 1.5rem; font-weight: bold;">{{ weather.get('wind_speed', 12) }} km/h</div>
+                <div>Wind Speed</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 10px;">
+                <i class="fas fa-thermometer-half" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                <div style="font-size: 1.5rem; font-weight: bold;">Feels like {{ weather.get('temperature', 28) }}°C</div>
+                <div>Feels Like</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Farming Recommendations -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-lightbulb"></i> Farming Recommendations
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px; border-left: 4px solid var(--primary-green);">
+                    <h4 style="color: var(--primary-green); margin-bottom: 0.5rem;">
+                        <i class="fas fa-tint"></i> Watering
+                    </h4>
+                    {% set humidity = weather.get('humidity', 65) %}
+                    {% if humidity > 70 %}
+                        <p>High humidity - reduce watering frequency to prevent overwatering and fungal diseases.</p>
+                    {% elif humidity < 40 %}
+                        <p>Low humidity - increase watering frequency and consider mulching to retain moisture.</p>
+                    {% else %}
+                        <p>Moderate humidity - maintain regular watering schedule.</p>
+                    {% endif %}
+                </div>
+                
+                <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px; border-left: 4px solid var(--warning);">
+                    <h4 style="color: var(--warning); margin-bottom: 0.5rem;">
+                        <i class="fas fa-seedling"></i> Planting
+                    </h4>
+                    {% set temperature = weather.get('temperature', 28) %}
+                    {% if temperature > 30 %}
+                        <p>High temperature - consider planting in the evening or providing shade for seedlings.</p>
+                    {% elif temperature < 20 %}
+                        <p>Cool temperature - good for planting cool-season crops like lettuce and spinach.</p>
+                    {% else %}
+                        <p>Ideal temperature - good conditions for most crops.</p>
+                    {% endif %}
+                </div>
+                
+                <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px; border-left: 4px solid var(--info);">
+                    <h4 style="color: var(--info); margin-bottom: 0.5rem;">
+                        <i class="fas fa-horse"></i> Livestock
+                    </h4>
+                    {% set temperature = weather.get('temperature', 28) %}
+                    {% if temperature > 28 %}
+                        <p>Hot weather - ensure adequate shade and water for animals. Consider cooling measures.</p>
+                    {% elif temperature < 18 %}
+                        <p>Cool weather - ensure animals have proper shelter and consider additional feed.</p>
+                    {% else %}
+                        <p>Comfortable weather - normal feeding and care routines.</p>
+                    {% endif %}
+                </div>
+                
+                <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px; border-left: 4px solid var(--success);">
+                    <h4 style="color: var(--success); margin-bottom: 0.5rem;">
+                        <i class="fas fa-spray-can"></i> Fertilizing
+                    </h4>
+                    {% set humidity = weather.get('humidity', 65) %}
+                    {% if humidity > 60 %}
+                        <p>High humidity - good conditions for fertilizer application and absorption.</p>
+                    {% else %}
+                        <p>Low humidity - consider applying fertilizer when moisture is better for absorption.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Regional Farming Tips -->
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">
+            <i class="fas fa-info-circle"></i> Regional Farming Tips for {{ weather.get('city', 'Nairobi') }}
+        </div>
+        <div class="card-body">
+            {% set region_tips = {
+                'Nairobi': 'Central Kenya highlands: Ideal for vegetables, dairy farming, and horticulture. Cool temperatures support year-round farming.',
+                'Mombasa': 'Coastal region: Perfect for coconut, cashew nuts, and tropical fruits. High humidity requires disease-resistant varieties.',
+                'Kisumu': 'Lake Victoria basin: Excellent for sugarcane, rice, and fishing. High water table supports irrigation farming.',
+                'Nakuru': 'Rift Valley: Prime wheat and barley growing area. Rich soils support large-scale commercial farming.',
+                'Eldoret': 'Highlands: Ideal for tea, pyrethrum, and dairy farming. Reliable rainfall patterns.',
+                'Garissa': 'Arid north: Suitable for camel herding and drought-resistant crops like sorghum and millet.',
+                'Kakamega': 'Western Kenya: High rainfall supports tea, coffee, and subsistence farming.',
+                'Kitui': 'Eastern Kenya: Semi-arid conditions ideal for mangoes, cotton, and goat rearing.',
+                'Machakos': 'Eastern region: Good for horticulture, especially tomatoes and vegetables.',
+                'Narok': 'Maasai lands: Excellent for wheat and livestock grazing. Open grasslands support pastoralism.',
+                'Kericho': 'Tea highlands: World-renowned tea growing region with perfect climate and rainfall.',
+                'Bungoma': 'Western region: Fertile soils support maize, beans, and traditional crops.',
+                'Turkana': 'Arid north: Focus on pastoralism, camel rearing, and drought-tolerant crops.',
+                'Marsabit': 'Northern highlands: Suitable for horticulture and livestock in green zones.',
+                'Isiolo': 'Transitional zone: Mixed farming potential with livestock and drought-resistant crops.',
+                'Meru': 'Upper eastern: Perfect for coffee, tea, and miraa (khat) cultivation.',
+                'Embu': 'Central region: Good for cotton, tobacco, and food crops.',
+                'Thika': 'Industrial agriculture: Pineapples, coffee, and horticulture thrive here.',
+                'Nyeri': 'Central highlands: Ideal for coffee, tea, and dairy farming.',
+                'Kilifi': 'Coastal region: Cashew nuts, coconuts, and tropical fruits flourish.',
+                'Kwale': 'Coastal south: Sugarcane, coconut, and beach tourism potential.',
+                'Tana River': 'River basin: Irrigation farming potential with rice and maize.',
+                'West Pokot': 'Western highlands: Good for horticulture and livestock rearing.',
+                'Samburu': 'Northern region: Pastoralism with some drought-resistant farming.',
+                'Baringo': 'Rift Valley: Mixed farming with irrigation potential.',
+                'Laikipia': 'Plateau region: Ideal for wheat, livestock, and conservation agriculture.',
+                'Nandi': 'Highlands: Prime tea and dairy farming area.',
+                'Uasin Gishu': 'Plateau: Large-scale wheat and maize farming region.',
+                'Homa Bay': 'Lake region: Fishing, cotton, and horticulture potential.',
+                'Migori': 'Western region: Sugarcane, tobacco, and gold mining area.',
+                'Kisii': 'Highlands: Banana, tea, and intensive horticulture.',
+                'Nyamira': 'Highlands: Dairy farming and horticulture.',
+                'Trans Nzoia': 'Highlands: Maize and wheat growing region.',
+                'Naivasha': 'Rift Valley: Horticulture, floriculture, and tourism.',
+                'Busia': 'Western border: Mixed farming with cross-border trade potential.',
+                'Siaya': 'Lake region: Fishing, rice, and horticulture.',
+                'Bomet': 'Highlands: Tea and dairy farming area.',
+                'Narok': 'Maasai lands: Wheat farming and wildlife conservation.',
+                'Kajiado': 'Southern rangelands: Pastoralism and wildlife.',
+                'Makueni': 'Eastern region: Mangoes, livestock, and horticulture.',
+                'Taveta': 'Border region: Mixed farming with tourism potential.',
+                'Voi': 'Coastal hinterland: Mixed farming and wildlife.',
+                'Malindi': 'Coastal: Tourism, fishing, and tropical fruits.',
+                'Lamu': 'Coastal archipelago: Fishing, tourism, and traditional agriculture.'
+            } %}
+            
+            <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px; border-left: 4px solid var(--primary-green); margin-bottom: 1rem;">
+                <h5 style="color: var(--primary-green); margin-bottom: 0.5rem;">
+                    <i class="fas fa-map-marked-alt"></i> Regional Characteristics
+                </h5>
+                <p style="color: var(--dark-gray);">{{ region_tips.get(weather.get('city', 'Nairobi'), 'General farming advice for this region.') }}</p>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                <div>
+                    <h5 style="color: var(--primary-green); margin-bottom: 0.5rem;">
+                        <i class="fas fa-sun"></i> Dry Season
+                    </h5>
+                    <ul style="padding-left: 1.5rem; color: var(--dark-gray);">
+                        <li>Focus on drought-resistant crops</li>
+                        <li>Implement water conservation techniques</li>
+                        <li>Provide adequate shade for livestock</li>
+                        <li>Consider irrigation systems</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h5 style="color: var(--primary-green); margin-bottom: 0.5rem;">
+                        <i class="fas fa-cloud-rain"></i> Rainy Season
+                    </h5>
+                    <ul style="padding-left: 1.5rem; color: var(--dark-gray);">
+                        <li>Plant water-intensive crops</li>
+                        <li>Ensure proper drainage</li>
+                        <li>Monitor for fungal diseases</li>
+                        <li>Harvest rainwater for future use</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h5 style="color: var(--primary-green); margin-bottom: 0.5rem;">
+                        <i class="fas fa-wind"></i> Windy Conditions
+                    </h5>
+                    <ul style="padding-left: 1.5rem; color: var(--dark-gray);">
+                        <li>Protect young plants with windbreaks</li>
+                        <li>Secure livestock shelters</li>
+                        <li>Monitor soil erosion</li>
+                        <li>Adjust irrigation schedules</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications - SmartFarm Kenya{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h1 style="color: var(--dark-green);">
+            <i class="fas fa-bell"></i> Farm Notifications
+        </h1>
+        <p style="color: var(--dark-gray);">Important reminders and alerts for your farm</p>
+    </div>
+
+    <!-- Harvest Alerts -->
+    {% if ready_crops %}
+    <div class="card">
+        <div class="card-header" style="background: linear-gradient(135deg, var(--warning), #F57C00);">
+            <i class="fas fa-exclamation-triangle"></i> Harvest Ready Alerts
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <h4 style="margin-bottom: 1rem;">
+                    <i class="fas fa-cut"></i> Time to Harvest!
+                </h4>
+                <p style="margin-bottom: 1rem;">The following crops are ready for harvest:</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                    {% for crop in ready_crops %}
+                    <div style="padding: 1rem; background: #FFF3E0; border-radius: 8px; border-left: 4px solid var(--warning);">
+                        <h5 style="color: var(--warning); margin-bottom: 0.5rem;">{{ crop.name }}</h5>
+                        <div style="font-size: 0.9rem; color: var(--dark-gray);">
+                            <div style="margin-bottom: 0.25rem;">
+                                <i class="fas fa-calendar"></i> Planted: {{ crop.planting_date.strftime('%B %d, %Y') }}
+                            </div>
+                            <div style="margin-bottom: 0.25rem;">
+                                <i class="fas fa-calendar-check"></i> Expected: {{ crop.expected_harvest_date.strftime('%B %d, %Y') }}
+                            </div>
+                            <div>
+                                <i class="fas fa-hourglass-half"></i> Days growing: {{ (now().date() - crop.planting_date).days }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Watering Reminders -->
+    {% if watering_needed %}
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header" style="background: linear-gradient(135deg, var(--info), #1565C0);">
+            <i class="fas fa-tint"></i> Watering Reminders
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <h4 style="margin-bottom: 1rem;">
+                    <i class="fas fa-tint"></i> Time to Water Your Crops
+                </h4>
+                <p style="margin-bottom: 1rem;">The following crops may need watering today:</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    {% for crop in watering_needed %}
+                    <div style="padding: 1rem; background: #E3F2FD; border-radius: 8px; border-left: 4px solid var(--info);">
+                        <h5 style="color: var(--info); margin-bottom: 0.5rem;">{{ crop.name }}</h5>
+                        <div style="font-size: 0.9rem; color: var(--dark-gray);">
+                            <div style="margin-bottom: 0.25rem;">
+                                <i class="fas fa-calendar"></i> Planted: {{ crop.planting_date.strftime('%B %d, %Y') }}
+                            </div>
+                            <div>
+                                <i class="fas fa-hourglass-half"></i> Days growing: {{ (now().date() - crop.planting_date).days }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div style="margin-top: 1rem;">
+                    <a href="{{ url_for('add_activity') }}" class="btn btn-info">
+                        <i class="fas fa-plus"></i> Log Watering Activity
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Health Alerts -->
+    {% if sick_animals %}
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header" style="background: linear-gradient(135deg, var(--danger), #C62828);">
+            <i class="fas fa-heartbeat"></i> Health Alerts
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <h4 style="margin-bottom: 1rem;">
+                    <i class="fas fa-exclamation-triangle"></i> Livestock Needs Attention
+                </h4>
+                <p style="margin-bottom: 1rem;">The following livestock need medical attention:</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                    {% for animal in sick_animals %}
+                    <div style="padding: 1rem; background: #FFEBEE; border-radius: 8px; border-left: 4px solid var(--danger);">
+                        <h5 style="color: var(--danger); margin-bottom: 0.5rem;">
+                            {{ animal.type.title() }}{% if animal.breed %} - {{ animal.breed }}{% endif %}
+                        </h5>
+                        <div style="font-size: 0.9rem; color: var(--dark-gray);">
+                            <div style="margin-bottom: 0.25rem;">
+                                <i class="fas fa-hashtag"></i> Number: {{ animal.number }}
+                            </div>
+                            <div style="margin-bottom: 0.25rem;">
+                                <i class="fas fa-heartbeat"></i> Status: <span style="color: var(--danger); font-weight: 600;">Sick</span>
+                            </div>
+                            <div>
+                                <i class="fas fa-calendar"></i> Added: {{ animal.created_at.strftime('%B %d, %Y') }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div style="margin-top: 1rem;">
+                    <a href="{{ url_for('add_activity') }}" class="btn btn-danger">
+                        <i class="fas fa-medkit"></i> Log Treatment Activity
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- No Notifications -->
+    {% if not ready_crops and not watering_needed and not sick_animals %}
+    <div class="card">
+        <div class="card-body" style="text-align: center; padding: 3rem;">
+            <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--success); margin-bottom: 1rem;"></i>
+            <h3 style="color: var(--dark-gray); margin-bottom: 1rem;">All Clear!</h3>
+            <p style="color: var(--medium-gray); margin-bottom: 2rem;">No urgent notifications at the moment. Your farm is running smoothly!</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; max-width: 600px; margin: 0 auto;">
+                <div style="text-align: center; padding: 1rem;">
+                    <i class="fas fa-seedling" style="font-size: 2rem; color: var(--primary-green); margin-bottom: 0.5rem;"></i>
+                    <div style="font-weight: 600; color: var(--primary-green);">Crops Growing</div>
+                    <div style="font-size: 0.9rem; color: var(--medium-gray);">Everything on schedule</div>
+                </div>
+                <div style="text-align: center; padding: 1rem;">
+                    <i class="fas fa-horse" style="font-size: 2rem; color: var(--primary-green); margin-bottom: 0.5rem;"></i>
+                    <div style="font-weight: 600; color: var(--primary-green);">Livestock Healthy</div>
+                    <div style="font-size: 0.9rem; color: var(--medium-gray);">All animals well</div>
+                </div>
+                <div style="text-align: center; padding: 1rem;">
+                    <i class="fas fa-tint" style="font-size: 2rem; color: var(--primary-green); margin-bottom: 0.5rem;"></i>
+                    <div style="font-weight: 600; color: var(--primary-green);">Watering On Track</div>
+                    <div style="font-size: 0.9rem; color: var(--medium-gray);">No watering needed today</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- General Tips -->
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">
+            <i class="fas fa-lightbulb"></i> General Farming Tips
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                <div>
+                    <h5 style="color: var(--primary-green); margin-bottom: 0.5rem;">
+                        <i class="fas fa-calendar-check"></i> Daily Routine
+                    </h5>
+                    <ul style="padding-left: 1.5rem; color: var(--dark-gray); font-size: 0.9rem;">
+                        <li>Check livestock health and water levels</li>
+                        <li>Inspect crops for pests or diseases</li>
+                        <li>Review weather conditions for the day</li>
+                        <li>Update farm records</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h5 style="color: var(--primary-green); margin-bottom: 0.5rem;">
+                        <i class="fas fa-chart-line"></i> Weekly Tasks
+                    </h5>
+                    <ul style="padding-left: 1.5rem; color: var(--dark-gray); font-size: 0.9rem;">
+                        <li>Plan feeding schedules</li>
+                        <li>Check soil moisture levels</li>
+                        <li>Monitor crop growth progress</li>
+                        <li>Review and update activity logs</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h5 style="color: var(--primary-green); margin-bottom: 0.5rem;">
+                        <i class="fas fa-camera"></i> Documentation
+                    </h5>
+                    <ul style="padding-left: 1.5rem; color: var(--dark-gray); font-size: 0.9rem;">
+                        <li>Take weekly progress photos</li>
+                        <li>Record unusual observations</li>
+                        <li>Document successful techniques</li>
+                        <li>Note challenges and solutions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

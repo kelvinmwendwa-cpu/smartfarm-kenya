@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - SmartFarm Kenya{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="max-width: 600px; margin: 2rem auto;">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-tasks"></i> {{ title }}
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="form-group">
+                        {{ form.type.label(class="form-label") }}
+                        {{ form.type(class="form-control") }}
+                        {% if form.type.errors %}
+                            <div class="alert alert-danger">
+                                {{ form.type.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows="4") }}
+                        {% if form.description.errors %}
+                            <div class="alert alert-danger">
+                                {{ form.description.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.date.label(class="form-label") }}
+                        {{ form.date(class="form-control") }}
+                        {% if form.date.errors %}
+                            <div class="alert alert-danger">
+                                {{ form.date.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem;">
+                        {{ form.submit(class="btn btn-primary", style="flex: 1;") }}
+                        <a href="{{ url_for('activities') }}" class="btn btn-outline-primary" style="flex: 1;">
+                            <i class="fas fa-arrow-left"></i> Back to Activities
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

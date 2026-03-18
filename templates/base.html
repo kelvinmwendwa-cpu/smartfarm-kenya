@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SmartFarm Kenya{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <!-- Logo -->
+                    <div class="logo">
+                        <i class="fas fa-leaf"></i> SmartFarm Kenya
+                    </div>
+                    
+                    <!-- Navigation Dropdown -->
+                    {% if current_user.is_authenticated %}
+                    <div class="nav-dropdown ms-4">
+                        <button class="nav-dropdown-btn" onclick="toggleDropdown()">
+                            <i class="fas fa-bars"></i> Menu
+                        </button>
+                        <div class="nav-dropdown-content" id="navDropdown">
+                            <a href="{{ url_for('dashboard') }}" class="nav-dropdown-item">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                            <a href="{{ url_for('crops') }}" class="nav-dropdown-item">
+                                <i class="fas fa-seedling"></i> Crops
+                            </a>
+                            <a href="{{ url_for('livestock') }}" class="nav-dropdown-item">
+                                <i class="fas fa-horse"></i> Livestock
+                            </a>
+                            <a href="{{ url_for('weather') }}" class="nav-dropdown-item">
+                                <i class="fas fa-cloud-sun"></i> Weather
+                            </a>
+                            <a href="{{ url_for('ai_assistant') }}" class="nav-dropdown-item">
+                                <i class="fas fa-robot"></i> AI Assistant
+                            </a>
+                            <a href="{{ url_for('farmer_portal') }}" class="nav-dropdown-item">
+                                <i class="fas fa-chart-line"></i> Farmer Portal
+                            </a>
+                            <a href="{{ url_for('activities') }}" class="nav-dropdown-item">
+                                <i class="fas fa-tasks"></i> Activities
+                            </a>
+                            <a href="{{ url_for('gallery') }}" class="nav-dropdown-item">
+                                <i class="fas fa-images"></i> Gallery
+                            </a>
+                            <a href="{{ url_for('notifications') }}" class="nav-dropdown-item">
+                                <i class="fas fa-bell"></i> Notifications
+                            </a>
+                            <a href="{{ url_for('logout') }}" class="nav-dropdown-item">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="nav-dropdown ms-4">
+                        <button class="nav-dropdown-btn" onclick="toggleDropdown()">
+                            <i class="fas fa-bars"></i> Menu
+                        </button>
+                        <div class="nav-dropdown-content" id="navDropdown">
+                            <a href="{{ url_for('login') }}" class="nav-dropdown-item">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a>
+                            <a href="{{ url_for('register') }}" class="nav-dropdown-item">
+                                <i class="fas fa-user-plus"></i> Register
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- User Info -->
+                <div class="user-info">
+                    {% if current_user.is_authenticated %}
+                        <span class="user-name">
+                            <i class="fas fa-user"></i> {{ current_user.username }}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 SmartFarm Kenya. Empowering Kenyan Farmers with Technology.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById('navDropdown');
+            if (dropdown.style.display === 'block') {
+                dropdown.style.display = 'none';
+            } else {
+                dropdown.style.display = 'block';
+            }
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('navDropdown');
+            const button = event.target.closest('.nav-dropdown');
+            
+            if (!button && dropdown.style.display === 'block') {
+                dropdown.style.display = 'none';
+            }
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

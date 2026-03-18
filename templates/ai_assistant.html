@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block title %}AI Farming Assistant - SmartFarm Kenya{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h1 style="color: var(--dark-green);">
+            <i class="fas fa-robot"></i> AI Farming Assistant
+        </h1>
+        <p style="color: var(--dark-gray);">Get intelligent diagnosis and treatment recommendations for your crops and livestock</p>
+    </div>
+
+    <!-- AI Assistant Interface -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+            <i class="fas fa-stethoscope"></i> Smart Diagnosis System
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('ai_diagnose') }}" enctype="multipart/form-data">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                    <!-- Crop Diagnosis Section -->
+                    <div style="padding: 1.5rem; background: var(--light-gray); border-radius: 10px; border-left: 4px solid var(--success);">
+                        <h3 style="color: var(--success); margin-bottom: 1rem;">
+                            <i class="fas fa-seedling"></i> Crop Diagnosis
+                        </h3>
+                        <div class="form-group">
+                            <label for="crop_name">Crop Type</label>
+                            <select name="crop_name" class="form-control" id="crop_name">
+                                <option value="">Select crop...</option>
+                                <option value="maize">Maize</option>
+                                <option value="tomatoes">Tomatoes</option>
+                                <option value="beans">Beans</option>
+                                <option value="kale">Kale</option>
+                                <option value="cabbage">Cabbage</option>
+                                <option value="onions">Onions</option>
+                                <option value="potatoes">Potatoes</option>
+                                <option value="carrots">Carrots</option>
+                                <option value="sugarcane">Sugarcane</option>
+                                <option value="wheat">Wheat</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="symptoms">Describe Symptoms</label>
+                            <textarea name="symptoms" class="form-control" id="symptoms" rows="4" 
+                                placeholder="e.g., yellow leaves, wilting, spots on leaves, stunted growth...">{{ symptoms or '' }}</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="crop_photo">
+                                <i class="fas fa-camera"></i> Upload Photo (Optional)
+                            </label>
+                            <input type="file" name="crop_photo" class="form-control" id="crop_photo" 
+                                accept="image/*" style="padding: 0.5rem;">
+                            <small style="color: var(--dark-gray);">Take a clear photo of the affected area for better analysis</small>
+                        </div>
+                    </div>
+
+                    <!-- Livestock Diagnosis Section -->
+                    <div style="padding: 1.5rem; background: var(--light-gray); border-radius: 10px; border-left: 4px solid var(--warning);">
+                        <h3 style="color: var(--warning); margin-bottom: 1rem;">
+                            <i class="fas fa-horse"></i> Livestock Diagnosis
+                        </h3>
+                        <div class="form-group">
+                            <label for="livestock_type">Animal Type</label>
+                            <select name="livestock_type" class="form-control" id="livestock_type">
+                                <option value="">Select animal...</option>
+                                <option value="cattle">Cattle</option>
+                                <option value="goats">Goats</option>
+                                <option value="sheep">Sheep</option>
+                                <option value="chicken">Chicken</option>
+                                <option value="pigs">Pigs</option>
+                                <option value="rabbits">Rabbits</option>
+                                <option value="turkey">Turkey</option>
+                                <option value="ducks">Ducks</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="animal_symptoms">Describe Symptoms</label>
+                            <textarea name="animal_symptoms" class="form-control" id="animal_symptoms" rows="4"
+                                placeholder="e.g., loss of appetite, diarrhea, coughing, limping, lethargic...">{{ animal_symptoms or '' }}</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="animal_photo">
+                                <i class="fas fa-camera"></i> Upload Photo (Optional)
+                            </label>
+                            <input type="file" name="animal_photo" class="form-control" id="animal_photo" 
+                                accept="image/*" style="padding: 0.5rem;">
+                            <small style="color: var(--dark-gray);">Take a clear photo of the affected animal for better analysis</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.8rem 2rem;">
+                        <i class="fas fa-microscope"></i> Get AI Diagnosis
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    {% if diagnosis %}
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+            <i class="fas fa-file-medical"></i> Diagnosis Results
+        </div>
+        <div class="card-body">
+            <!-- User Input Summary -->
+            <div style="margin-bottom: 1.5rem;">
+                <h4 style="color: var(--info); margin-bottom: 1rem;">
+                    <i class="fas fa-user-input"></i> Your Input
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                    {% if crop_name %}
+                    <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px; border-left: 3px solid var(--success);">
+                        <h6 style="color: var(--success); margin-bottom: 0.5rem;">
+                            <i class="fas fa-seedling"></i> Crop Type
+                        </h6>
+                        <p style="margin: 0; font-weight: bold;">{{ crop_name }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if symptoms %}
+                    <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px; border-left: 3px solid var(--info);">
+                        <h6 style="color: var(--info); margin-bottom: 0.5rem;">
+                            <i class="fas fa-notes-medical"></i> Symptoms Described
+                        </h6>
+                        <p style="margin: 0;">{{ symptoms }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if livestock_type %}
+                    <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px; border-left: 3px solid var(--warning);">
+                        <h6 style="color: var(--warning); margin-bottom: 0.5rem;">
+                            <i class="fas fa-horse"></i> Animal Type
+                        </h6>
+                        <p style="margin: 0; font-weight: bold;">{{ livestock_type }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if animal_symptoms %}
+                    <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px; border-left: 3px solid var(--warning);">
+                        <h6 style="color: var(--warning); margin-bottom: 0.5rem;">
+                            <i class="fas fa-stethoscope"></i> Animal Symptoms
+                        </h6>
+                        <p style="margin: 0;">{{ animal_symptoms }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if photo_info %}
+                    <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px; border-left: 3px solid var(--info);">
+                        <h6 style="color: var(--info); margin-bottom: 0.5rem;">
+                            <i class="fas fa-camera"></i> Photo Uploaded
+                        </h6>
+                        <p style="margin: 0; font-size: 0.9rem; color: var(--dark-gray);">{{ photo_info }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Urgency Indicator -->
+            <div style="margin-bottom: 1.5rem;">
+                {% set urgency_colors = {'low': 'success', 'medium': 'warning', 'high': 'danger'} %}
+                {% set urgency_icons = {'low': 'check-circle', 'medium': 'exclamation-triangle', 'high': 'exclamation-circle'} %}
+                <div class="alert alert-{{ urgency_colors.get(urgency, 'info') }}" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-{{ urgency_icons.get(urgency, 'info-circle') }}"></i>
+                    <strong>Urgency Level:</strong> {{ urgency.title() }}
+                    {% if urgency == 'high' %}
+                    <span style="margin-left: auto; font-weight: bold;">⚠️ ATTENTION REQUIRED</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Diagnosis -->
+            <div style="margin-bottom: 1.5rem;">
+                <h4 style="color: var(--primary-green); margin-bottom: 0.5rem;">
+                    <i class="fas fa-diagnoses"></i> AI Diagnosis
+                </h4>
+                <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px;">
+                    <p style="margin: 0; font-size: 1.1rem;">{{ diagnosis }}</p>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div>
+                <h4 style="color: var(--primary-green); margin-bottom: 1rem;">
+                    <i class="fas fa-lightbulb"></i> Treatment Recommendations
+                </h4>
+                <div style="display: grid; gap: 1rem;">
+                    {% for recommendation in recommendations %}
+                    <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px; border-left: 3px solid var(--primary-green); display: flex; align-items: flex-start; gap: 0.5rem;">
+                        <i class="fas fa-check-circle" style="color: var(--success); margin-top: 0.2rem;"></i>
+                        <span>{{ recommendation }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Additional Actions -->
+            <div style="margin-top: 2rem; padding: 1rem; background: var(--light-gray); border-radius: 8px; text-align: center;">
+                <p style="margin-bottom: 1rem; color: var(--dark-gray);">
+                    <i class="fas fa-info-circle"></i> 
+                    This AI diagnosis provides guidance based on common agricultural patterns. 
+                    For severe cases or if symptoms persist, please consult a qualified veterinarian or agricultural extension officer.
+                </p>
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-home"></i> Back to Dashboard
+                    </a>
+                    <button onclick="window.print()" class="btn btn-outline-secondary">
+                        <i class="fas fa-print"></i> Print Diagnosis
+                    </button>
+                    <a href="{{ url_for('activities') }}" class="btn btn-outline-success">
+                        <i class="fas fa-plus"></i> Log Treatment Activity
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Features Section -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+            <i class="fas fa-star"></i> AI Assistant Features
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                <div style="text-align: center;">
+                    <div style="font-size: 3rem; color: var(--primary-green); margin-bottom: 0.5rem;">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h5 style="color: var(--dark-green); margin-bottom: 0.5rem;">Smart Diagnosis</h5>
+                    <p style="color: var(--dark-gray);">AI-powered pattern recognition for accurate disease identification</p>
+                </div>
+                
+                <div style="text-align: center;">
+                    <div style="font-size: 3rem; color: var(--success); margin-bottom: 0.5rem;">
+                        <i class="fas fa-pills"></i>
+                    </div>
+                    <h5 style="color: var(--dark-green); margin-bottom: 0.5rem;">Treatment Plans</h5>
+                    <p style="color: var(--dark-gray);">Step-by-step treatment recommendations with urgency indicators</p>
+                </div>
+                
+                <div style="text-align: center;">
+                    <div style="font-size: 3rem; color: var(--warning); margin-bottom: 0.5rem;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h5 style="color: var(--dark-green); margin-bottom: 0.5rem;">Quick Response</h5>
+                    <p style="color: var(--dark-gray);">Instant analysis to help you make timely decisions</p>
+                </div>
+                
+                <div style="text-align: center;">
+                    <div style="font-size: 3rem; color: var(--info); margin-bottom: 0.5rem;">
+                        <i class="fas fa-book-medical"></i>
+                    </div>
+                    <h5 style="color: var(--dark-green); margin-bottom: 0.5rem;">Comprehensive Database</h5>
+                    <p style="color: var(--dark-gray);">Extensive knowledge base covering Kenyan farming conditions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tips Section -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-lightbulb"></i> Usage Tips
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px;">
+                    <h6 style="color: var(--primary-green); margin-bottom: 0.5rem;">
+                        <i class="fas fa-check"></i> Be Specific
+                    </h6>
+                    <p style="margin: 0; color: var(--dark-gray);">Provide detailed symptom descriptions for better accuracy</p>
+                </div>
+                
+                <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px;">
+                    <h6 style="color: var(--primary-green); margin-bottom: 0.5rem;">
+                        <i class="fas fa-camera"></i> Take Photos
+                    </h6>
+                    <p style="margin: 0; color: var(--dark-gray);">Document symptoms with photos for better tracking</p>
+                </div>
+                
+                <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px;">
+                    <h6 style="color: var(--primary-green); margin-bottom: 0.5rem;">
+                        <i class="fas fa-user-md"></i> Consult Professionals
+                    </h6>
+                    <p style="margin: 0; color: var(--dark-gray);">Always consult vets for serious livestock conditions</p>
+                </div>
+                
+                <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px;">
+                    <h6 style="color: var(--primary-green); margin-bottom: 0.5rem;">
+                        <i class="fas fa-history"></i> Track Progress
+                    </h6>
+                    <p style="margin: 0; color: var(--dark-gray);">Log treatment activities to monitor effectiveness</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

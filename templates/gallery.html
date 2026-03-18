@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Gallery - SmartFarm Kenya{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap;">
+        <div>
+            <h1 style="color: var(--dark-green);">
+                <i class="fas fa-images"></i> Farm Gallery
+            </h1>
+            <p style="color: var(--dark-gray);">Visual record of your farm's progress and activities</p>
+        </div>
+        <a href="{{ url_for('upload_image') }}" class="btn btn-primary">
+            <i class="fas fa-camera"></i> Upload Photo
+        </a>
+    </div>
+
+    <!-- Gallery Grid -->
+    {% if images %}
+        <div class="gallery-grid">
+            {% for image in images %}
+            <div class="gallery-item">
+                <img src="{{ url_for('uploaded_file', filename=image.filename) }}" 
+                     alt="{{ image.description or 'Farm image' }}">
+                <div class="gallery-overlay">
+                    <h5>{{ image.description or 'Farm Photo' }}</h5>
+                    <small>{{ image.created_at.strftime('%B %d, %Y') }}</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Gallery Statistics -->
+        <div class="card" style="margin-top: 2rem;">
+            <div class="card-header">
+                <i class="fas fa-chart-bar"></i> Gallery Statistics
+            </div>
+            <div class="card-body">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; text-align: center;">
+                    <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px;">
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--primary-green);">{{ images|length }}</div>
+                        <div>Total Photos</div>
+                    </div>
+                    <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px;">
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--primary-green);">
+                            {{ (images|length / 12)|round(1) }}
+                        </div>
+                        <div>Photos/Month</div>
+                    </div>
+                    <div style="padding: 1rem; background: var(--light-gray); border-radius: 8px;">
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--primary-green);">
+                            {{ images[0].created_at.strftime('%B') if images else 'N/A' }}
+                        </div>
+                        <div>Latest Month</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="card">
+            <div class="card-body" style="text-align: center; padding: 3rem;">
+                <i class="fas fa-images" style="font-size: 4rem; color: var(--medium-gray); margin-bottom: 1rem;"></i>
+                <h3 style="color: var(--dark-gray); margin-bottom: 1rem;">No photos uploaded yet</h3>
+                <p style="color: var(--medium-gray); margin-bottom: 2rem;">Start building a visual record of your farm by uploading your first photo.</p>
+                <a href="{{ url_for('upload_image') }}" class="btn btn-primary">
+                    <i class="fas fa-camera"></i> Upload Your First Photo
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

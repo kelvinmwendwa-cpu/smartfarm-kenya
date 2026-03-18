@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SmartFarm Kenya{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Welcome Header -->
+    <div class="welcome-section" style="margin-bottom: 2rem;">
+        <h1 style="color: var(--dark-green); margin-bottom: 0.5rem;">
+            Welcome back, {{ current_user.username }}!
+        </h1>
+        <p style="color: var(--dark-gray); font-size: 1.1rem;">
+            {{ current_user.farm_name }} - Farm Overview
+        </p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_crops }}</div>
+            <div class="stat-label">Active Crops</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_livestock }}</div>
+            <div class="stat-label">Total Livestock</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ ready_crops|length }}</div>
+            <div class="stat-label">Ready for Harvest</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ recent_activities|length }}</div>
+            <div class="stat-label">Recent Activities</div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-bolt"></i> Quick Actions
+        </div>
+        <div class="card-body">
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <a href="{{ url_for('add_crop') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Crop
+                </a>
+                <a href="{{ url_for('add_livestock') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Livestock
+                </a>
+                <a href="{{ url_for('add_activity') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Log Activity
+                </a>
+                <a href="{{ url_for('upload_image') }}" class="btn btn-primary">
+                    <i class="fas fa-camera"></i> Upload Photo
+                </a>
+                <a href="{{ url_for('notifications') }}" class="btn btn-warning">
+                    <i class="fas fa-bell"></i> View Notifications
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-top: 2rem;">
+        <!-- Recent Activities -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-tasks"></i> Recent Activities
+            </div>
+            <div class="card-body">
+                {% if recent_activities %}
+                    <div class="timeline">
+                        {% for activity in recent_activities %}
+                        <div class="timeline-item">
+                            <div class="timeline-content">
+                                <h4 style="color: var(--primary-green); margin-bottom: 0.5rem;">
+                                    {{ activity.type.title() }}
+                                </h4>
+                                <p>{{ activity.description }}</p>
+                                <small style="color: var(--medium-gray);">
+                                    <i class="fas fa-calendar"></i> {{ activity.date.strftime('%B %d, %Y') }}
+                                </small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <a href="{{ url_for('activities') }}" class="btn btn-outline-primary">
+                            View All Activities
+                        </a>
+                    </div>
+                {% else %}
+                    <p style="text-align: center; color: var(--medium-gray); padding: 2rem;">
+                        No activities logged yet. 
+                        <a href="{{ url_for('add_activity') }}" style="color: var(--primary-green);">Start logging your farm activities!</a>
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Harvest Alerts -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-exclamation-triangle"></i> Harvest Alerts
+            </div>
+            <div class="card-body">
+                {% if ready_crops %}
+                    {% for crop in ready_crops %}
+                    <div class="alert alert-warning" style="margin-bottom: 1rem;">
+                        <h5 style="margin-bottom: 0.5rem;">{{ crop.name }}</h5>
+                        <p style="margin-bottom: 0.5rem;">Ready for harvest!</p>
+                        <small>
+                            Planted: {{ crop.planting_date.strftime('%B %d, %Y') }}<br>
+                            Expected: {{ crop.expected_harvest_date.strftime('%B %d, %Y') }}
+                        </small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="text-align: center; color: var(--medium-gray); padding: 1rem;">
+                        No crops ready for harvest at the moment.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Photos -->
+    {% if recent_images %}
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">
+            <i class="fas fa-images"></i> Recent Farm Photos
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                {% for image in recent_images %}
+                <div style="position: relative; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <img src="{{ url_for('uploaded_file', filename=image.filename) }}" 
+                         alt="{{ image.description or 'Farm image' }}" 
+                         style="width: 100%; height: 150px; object-fit: cover;">
+                    <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; padding: 0.5rem;">
+                        <small>{{ image.description or 'Farm photo' }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div style="text-align: center; margin-top: 1rem;">
+                <a href="{{ url_for('gallery') }}" class="btn btn-outline-primary">
+                    View All Photos
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Weather Widget -->
+    <div class="weather-widget" style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem;">
+            <i class="fas fa-cloud-sun"></i> Today's Weather
+        </h3>
+        <div style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap;">
+            <div>
+                <div class="weather-temp">28°C</div>
+                <div class="weather-desc">Partly Cloudy</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">
+                    <i class="fas fa-tint"></i> 65%
+                </div>
+                <div>Humidity</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">
+                    <i class="fas fa-wind"></i> 12 km/h
+                </div>
+                <div>Wind Speed</div>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 1rem;">
+            <a href="{{ url_for('weather') }}" class="btn btn-primary" style="background: rgba(255,255,255,0.2); border: 2px solid white;">
+                View Detailed Weather
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

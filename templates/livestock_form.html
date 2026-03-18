@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - SmartFarm Kenya{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="max-width: 600px; margin: 2rem auto;">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-horse"></i> {{ title }}
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            {{ form.type.label(class="form-label") }}
+                            {{ form.type(class="form-control") }}
+                            {% if form.type.errors %}
+                                <div class="alert alert-danger">
+                                    {{ form.type.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.breed.label(class="form-label") }}
+                            {{ form.breed(class="form-control") }}
+                            {% if form.breed.errors %}
+                                <div class="alert alert-danger">
+                                    {{ form.breed.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            {{ form.number.label(class="form-label") }}
+                            {{ form.number(class="form-control") }}
+                            {% if form.number.errors %}
+                                <div class="alert alert-danger">
+                                    {{ form.number.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form.health_status.label(class="form-label") }}
+                            {{ form.health_status(class="form-control") }}
+                            {% if form.health_status.errors %}
+                                <div class="alert alert-danger">
+                                    {{ form.health_status.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.notes.label(class="form-label") }}
+                        {{ form.notes(class="form-control", rows="4") }}
+                        {% if form.notes.errors %}
+                            <div class="alert alert-danger">
+                                {{ form.notes.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem;">
+                        {{ form.submit(class="btn btn-primary", style="flex: 1;") }}
+                        <a href="{{ url_for('livestock') }}" class="btn btn-outline-primary" style="flex: 1;">
+                            <i class="fas fa-arrow-left"></i> Back to Livestock
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
