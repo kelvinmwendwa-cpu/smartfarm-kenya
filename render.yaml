@@ -12,3 +12,4 @@ services:
         generateValue: true
       - key: PORT
         value: 10000
+    pythonVersion: 3.9.16
